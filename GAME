@@ -1,0 +1,1031 @@
+TITLE SOT (SIMPLIFIED .EXE FORMAT)
+.MODEL SMALL
+.386p
+;------------------------------------------------------------------------------
+.STACK	32
+;------------------------------------------------------------------------------
+.DATA
+                 
+  INPUT		DB		?
+      ;-------------------------------home screen------------------------------      
+  A DB "               MMMMMMMMMMMMMMMMMMMMMNx,..,kNMMMMMMMMMMMMMMMMMMMMM",10, 13
+    DB "               MMMMMMMMMMMMMMMMMMMW0oll;..'l0WMMMMMMMMMMMMMMMMMMM",10, 13
+    DB "               MMMMMMMMMMMMMMMMXdlkKx:,,,'''..,dXMMMMMMMMMMMMMMMM",10, 13
+    DB "               MMMMMMMMMMMMMMWOlo0Ol,,,,,'''''..:OWMMMMMMMMMMMMMM",10, 13
+    DB "               MMMMMMMMMMMMXlcxx:,,,,,,,,,,''.'''..lXMMMMMMMMMMMM",10, 13
+    DB "               MMMMMMMMMMMKccdc,,,,,,,,,,,,,''.''''.:KMMMMMMMMMMM",10, 13
+    DB "               MMMMMMMMMK:............................:KMMMMMMMMM",10, 13
+    DB "               MMMMMMMMXl;oddddddddddddddddddddddddddo;lXMMMMMMMM",10, 13
+    DB "               MMMMMMNlcXMMMMMMMMWNNNNNNNNNNNWNNNNNNNNXO:oNMMMMMM",10, 13
+    DB "               MMMMMWo:KMMMMMMMMWXOdoooooooox0NNNNNNNNKKO:oWMMMMM",10, 13
+    DB "               MMMMMO:xMMMMMMMW0ccl:lxOKXX0dclcc0NNNNNKKKd:OMMMMM",10, 13
+    DB "               MMMMWd:KMMMMMWWN0lclcd0KK0Odc:lccONNNNXKKKO:dWMMMM",10, 13
+    DB "               MMMMWd:KMMMMWWNNN0occclllllcccclONNNNNXKKKO:dWMMMM",10, 13
+    DB "               MMMMMx:0MMMMWNNNNNN0dooollllodOXNNNNNNKKKKk:xMMMMM",10, 13
+    DB "               MMMMMK:k/    |      |      |/    |  /  ]  |/ ]MMMM",10, 13
+    DB "               MMMMMK:|  o  |      |      |  o  | /  /|  ' / MMMM",10, 13
+    DB "               MMMMMK:|     |_|  |_|_|  |_|     |/  / |    \ MMMM",10, 13
+    DB "               MMMMMk:|__|__| |__|   |__| |__|__|\____|__|\_|MMMM",10, 13              
+    DB "               MMMN0d:.oNNNNNNNNNNNNNOc;;cOXXNNNNNXKKKKKo.;d0NMMM",10, 13
+    DB "               ;.',''....lXNNNNNNNNNNx....dKKKKKKKKKKKl....',,'.;",10, 13
+    DB "               ..,,'.'d0d:xNNNNNNNNNNx...'xXKKKKKK0KKx:d0d'.','..",10, 13
+    DB "               .''.,0MMMMM0:cOK0OkOOkl....lkOkxdddo;:KMMMMM0,.''.",10, 13
+    DB "               ....xMMMMMMMWKOOOO _________  OOOOOOXWMMMMMMMx....",10, 13
+    DB "               '..,0MMMMMMMMMMMM  | 1 START | MMMMMMMMMMMMMM0,..'",10, 13
+    DB "               :..:XMMMMMMMMMMMM  | 2 ABOUT | MMMMMMMMMMMMMMMX:..:",10, 13
+    DB "               d..lWMMMMMMMMMMMM  | 3 EXIT  | MMMMMMMMMMMMMMMWl..d",10, 13
+    DB "               0'.dWMMMMMMMMMMMM  ----------- MMMMMMMMMMMMMMWd.'0",10, 13
+    DB "               Mkc0MMMMMMMMMMMMMMMMMMk.  .OMMMMMMMMMMMMMMMMMMOckM" ,'$'
+
+  ESCAPE DB 'press ESC to quit $'
+  TEMP DB ?
+  LOAD_STR  DB 'Loading...$'
+  COMPLETE_STR DB 'Complete! $'
+  PLAY	DB 'Play! $' 
+  ABOUT DB 10, 13, "Use UP and DOWN keys to MOVE", 10, 13
+        DB "Use the right key to shoot and destroy your enemies", 10, 13
+        DB 10, 13, "Avoid the enemies marching towards you",'$'
+
+  STRING DB '>$'
+  STRING_DASH DB '-$'
+  STRING_ENEMY DB '<$'
+  STRING_ENEMY3 DB '<$'
+  STRING_ENEMY4 DB'<$'
+  STRING_ENEMY5 DB '<$'
+  STRING_ENEMY6 DB '<$'
+  STRING_ENEMY7 DB '<$'
+  STRING_ENEMY8 DB '<$'
+
+  SPACE DB ' $'
+  ;------
+  ROW DB 0CH ;  12R (((HERO)))
+  COLUMN DB 03H ; 3C
+  ;-----
+  DASH_COLUMN DB 04H
+  DASH_ROW DB ?
+  ;-----
+  ROW_ENEMY DB 0AH;  12R (((ENEMY)))
+  COLUMN_ENEMY DB 49H; 70C ---all C enemy must be 70(46H)
+  ROW_ENEMY1 DB 01H ;--1R
+  COLUMN_ENEMY1 DB 30H;--70C
+  ROW_ENEMY2 DB 14H ;---20R
+  COLUMN_ENEMY2 DB 49H;--70C
+  ROW_ENEMY3 DB 16H ;---22R
+  COLUMN_ENEMY3 DB 49H ;---70C
+  ROW_ENEMY4 DB 0BH ;---11R
+  COLUMN_ENEMY4 DB 49H ;---70C
+  ROW_ENEMY5 DB 07H ;---7R
+  COLUMN_ENEMY5 DB 49H ;---70C
+  
+  COLUMN_DASH DB ?
+  ROW_DASH DB ?
+
+  score db "SCORE:   ", "$"
+  ;point db "0 $"
+  life db "life: ", "$"
+  heart dw 3
+
+  TMP DB ?
+  TMP2 DB ?
+  TMP3 DB ?
+  TMP4 DB ?
+  TMP5 DB ?
+  TMP6 DB ?
+  TMP7 DB ?
+
+;--------------------------------game over screen-----------------------------
+ game_over db "         _ _  _  _ _ _ _   _  ", 10,13                                    
+           db "        / ` |/ _` | ' ` _ \ / _ \        .--.   ", 10,13
+           db "       | (| | (_| | | | | | | | _       /    \   ", 10,13
+           db "        \__,|\__,_|_| |_| |_|\___|      q .. p   ", 10,13
+           db "          / |     __   _ _ _  __   \--/  ", 10,13
+           db "        |___|     / _ \ \ / / _ \ '__|   |V|   ", 10,13
+           db "                  |(_) \ V /  __/ |     _| /   ", 10,13
+           db "                  \___/ \_/ \___|_|     \ /  ", 10,13
+           db "                                         //    ", 10,13
+           db "                                  __||__//     ", 10,13
+           db "                                 /.    _/      ", 10,13
+           db "                                // \  /        ", 10,13
+           db "                               //   ||             ", 10,13
+           db "                               \\  /  \       ", 10,13
+           db "                               / || || |      ", 10,13
+           db "                               |/\| || |      ", 10,13
+           db "                                  | || |      ", 10,13
+           db "                                  \ || /     ", 10,13
+           db "                                 / || \___", 10,13
+           db "                               \____/\____/ ", "$"
+;-----------------------------------------------------------------------------------------------
+.CODE
+MAIN PROC FAR
+  ;set DS to address of code segment
+  MOV AX, @DATA
+  MOV DS, AX
+			
+  ;MOV AX, 1001H
+  ;MOV BH, 02
+  ;INT 10H
+
+  MOV TMP, 0
+  MOV TMP2, 0
+
+  ITERATES:
+    ;clear screen
+    CALL _CLEAR_SCREEN
+
+    ;set cursor for menu
+    MOV	DL, 00H
+    MOV DH, 00
+    CALL _SET_CURSOR
+
+    ;display MENU
+    MOV AH, 09H
+    LEA	DX, A
+    INT	21H
+			
+    get_input:
+      MOV AH, 10H
+      MOV INPUT, AL
+      INT 16H
+      
+      CMP AL, 31H
+      JE DISPLAY_PLAY
+      CMP AL, 32h
+      je display_about
+      CMP AL, 33h
+      je _terminate
+      jmp get_input
+   
+   display_about:
+    ;clear screen
+    CALL _CLEAR_SCREEN
+			
+    ;set cursor for about
+    MOV DL, 35
+    MOV DH, 05
+    CALL _SET_CURSOR
+	
+    MOV AH, 09H
+    LEA	DX, ABOUT
+    INT	21H
+			
+    ;set cursor for esc
+    MOV	DL, 61
+    MOV	DH, 24
+    CALL _SET_CURSOR
+					
+    MOV AH, 09H
+    LEA	DX, ESCAPE
+    INT	21H
+
+    CALL PRINT_ESC
+			
+;get input
+_ESC: ;loop when another key other that esc key is pressed
+    MOV AL, 0000H
+    MOV AH, 10H
+    MOV INPUT, AL
+    INT 16H
+			
+    CMP AL, 27 ;compare if esc
+    JE ITERATES
+    JMP _ESC
+;--------------------------------------------------------------------
+_TERMINATE PROC	NEAR ;terminates the program when called and sets the cursor for the next command line
+  ;set cursor
+  call clear_screen
+  MOV DL, 00 ;row
+  MOV DH, 14 ;column
+  CALL _SET_CURSOR
+
+  MOV AX, 4C00H
+  INT 21H
+
+_TERMINATE ENDP
+;--------------------------------------------------------------------
+DISPLAY_PLAY:	 
+  ;initializing variables
+  MOV ROW_ENEMY, 0AH;  12R (((ENEMY)))
+  MOV COLUMN_ENEMY,49H; 70C ---all C enemy must be 70(46H)
+  MOV ROW_ENEMY1, 01H ;--1R
+  MOV COLUMN_ENEMY1,30H;--70C
+  MOV ROW_ENEMY2,14H ;---20R
+  MOV COLUMN_ENEMY2,49H;--70C
+  MOV ROW_ENEMY3,16H ;---22R
+  MOV COLUMN_ENEMY3,49H ;---70CS
+  MOV STRING_ENEMY3,  '<'
+  MOV STRING_ENEMY4, '<'
+  MOV STRING_ENEMY5, '<'
+  MOV STRING_ENEMY6, '<'
+  MOV STRING_ENEMY7, '<'
+  MOV STRING_ENEMY8, '<'
+
+  CALL _LOADING ;loading screen
+  CALL _DELAY
+
+  GAME_LOOP:
+    CALL _DELAY
+    ;clear screen
+    CALL CLEAR_SCREEN
+    
+    CALL PRINT ;player
+    CALL PRINT_SCORE 
+    CALL PRINT_LIVES
+    CALL PRINT_ESC
+
+    CALL PRINT3
+    CALL UPDATE_PRINT3 
+    CALL CHECK_HIT
+
+    CALL PRINT4
+    CALL UPDATE_PRINT4
+    CALL CHECK_HIT1
+
+    CALL PRINT5
+    CALL UPDATE_PRINT5
+    CALL CHECK_HIT2
+
+    CALL PRINT6
+    CALL UPDATE_PRINT6
+    CALL CHECK_HIT3
+
+    CALL PRINT7
+    CALL UPDATE_PRINT7
+    CALL CHECK_HIT4
+
+    CALL PRINT8
+    CALL UPDATE_PRINT8
+    CALL CHECK_HIT5
+
+    CALL KEYBOARDFUNC
+
+    CALL PRINT2 ;DASHHHHH
+    CALL UPDATE_PRINT2
+
+    ;CALL CHECK_HIT4   ;-----tiryyy
+
+    JMP GAME_LOOP
+	      
+MAIN ENDP
+;----------------------------------------------------------------------------
+CHECK_COLLISIONS PROC
+  CALL CHECK_CWE1   ;check collision with enemy 1
+  CALL CHECK_CWE2
+
+RET
+CHECK_COLLISIONS ENDP
+;----------------------------------------------------------------------------
+CHECK_CWE1 PROC
+  MOV AL, DASH_COLUMN
+  CMP COLUMN_ENEMY, AL
+  JE CMPROW1
+  RET
+CMPROW1:
+  MOV AL, DASH_ROW
+  CMP ROW_ENEMY, AL
+  JE ESCC
+  RET
+ESCC: 
+  CALL _TERMINATE
+CHECK_CWE1 ENDP
+;---------------------------------------------
+CHECK_CWE2 PROC
+  MOV AL, DASH_COLUMN
+  CMP COLUMN_ENEMY1, AL
+  JE CMPROW1
+  RET
+CMPROW2:
+  MOV AL, DASH_ROW
+  CMP ROW_ENEMY2, AL
+  JE ESCC
+  RET
+CHECK_CWE2 ENDP
+;---------------------------------------------
+CHECK_HIT PROC NEAR ;check if player and enemy collides
+                    ;if player's column and row are equal to enemy's column and row then minus to number of hearts
+  MOV AL, COLUMN ;player
+
+  CMP AL, COLUMN_ENEMY ;compares the player and enemy's columns
+  JE FLAG1
+  MOV AH, 1 
+
+  CHECK2:
+    MOV BL, ROW ;player
+    CMP BL, ROW_ENEMY ;compares the player and enemy's rows
+    JE FLAG2  
+    MOV BH, 1 ;1, if the enemy's row and the player's row are not equal
+
+  CHECK3:
+    ADD AH, BH ;checks if both columns and rows are equal
+    CMP AH, 0 ;if zero
+    JE HIT    ;then there is collision, player losses a live
+    JMP RET1 ;if commented out kay dili responsive ang play screen
+
+FLAG1: ;flags if enemy's column and player's column are equal
+  MOV AH, 0
+  JMP CHECK2
+FLAG2: ;flags if enemy's row and player's row are equal
+  MOV BH, 0
+  JMP CHECK3
+
+HIT:
+  CMP HEART, 1 ;
+  JE print_gameover
+  dec heart
+  call print_lives
+
+RET1:
+  RET
+
+CHECK_HIT ENDP
+;---------------------------------------------------------------------------
+CHECK_HIT1 PROC NEAR
+  
+  MOV AL, COLUMN 
+
+  CMP AL, COLUMN_ENEMY1
+  JE FLAG1A
+  MOV AH, 1
+
+  CHECK2A:
+    MOV BL, ROW
+    CMP BL, ROW_ENEMY1
+    JE FLAG2A
+    MOV BH, 1
+
+  CHECK3A:
+    ADD AH, BH
+    CMP AH, 0
+    JE HIT1
+    JMP RET1A
+
+FLAG1A:
+  MOV AH, 0
+  JMP CHECK2A
+FLAG2A:
+  MOV BH, 0
+  JMP CHECK3A
+
+HIT1:
+  cmp heart, 1
+  je print_gameover
+  dec heart
+  call print_lives
+
+RET1A:
+RET
+
+CHECK_HIT1 ENDP
+;---------------------------------------------------------------------------
+CHECK_HIT2 PROC NEAR
+  
+  MOV AL, COLUMN 
+
+  CMP AL, COLUMN_ENEMY2
+  JE FLAG1B
+  MOV AH, 1
+
+  CHECK2B:
+    MOV BL, ROW
+    CMP BL, ROW_ENEMY2
+    JE FLAG2B
+    MOV BH, 1
+
+  CHECK3B:
+    ADD AH, BH
+    CMP AH, 0
+    JE HIT2
+    JMP RET1B
+
+FLAG1B:
+  MOV AH, 0
+  JMP CHECK2B
+FLAG2B:
+  MOV BH, 0
+  JMP CHECK3B
+
+HIT2:
+   cmp heart, 1
+  je print_gameover
+  dec heart
+  call print_lives
+
+RET1B:
+RET
+
+CHECK_HIT2 ENDP
+;---------------------------------------------------------------------------
+CHECK_HIT3 PROC NEAR
+  
+  MOV AL, COLUMN 
+
+  CMP AL, COLUMN_ENEMY3
+  JE FLAG1C
+  MOV AH, 1
+
+  CHECK2C:
+    MOV BL, ROW
+    CMP BL, ROW_ENEMY3
+    JE FLAG2C
+    MOV BH, 1
+
+  CHECK3C:
+    ADD AH, BH
+    CMP AH, 0
+    JE HIT3
+    JMP RET1C
+
+FLAG1C:
+  MOV AH, 0
+  JMP CHECK2C
+FLAG2C:
+  MOV BH, 0
+  JMP CHECK3C
+
+HIT3:
+   cmp heart, 1
+  je print_gameover
+  dec heart
+  call print_lives
+
+RET1C:
+RET
+
+CHECK_HIT3 ENDP
+;---------------------------------------------------------------------------
+CHECK_HIT4 PROC NEAR
+  
+  MOV AL, COLUMN 
+
+  CMP AL, COLUMN_ENEMY4
+  JE FLAG1D
+  MOV AH, 1
+
+  CHECK2D:
+    MOV BL, ROW
+    CMP BL, ROW_ENEMY4
+    JE FLAG2D
+    MOV BH, 1
+
+  CHECK3D:
+    ADD AH, BH
+    CMP AH, 0
+    JE HIT4
+    JMP RET1D
+
+FLAG1D:
+  MOV AH, 0
+  JMP CHECK2D
+FLAG2D:
+  MOV BH, 0
+  JMP CHECK3D
+
+HIT4:
+  cmp heart, 1
+  je print_gameover
+  dec heart
+  call print_lives
+
+RET1D:
+RET
+
+CHECK_HIT4 ENDP
+;---------------------------------------------------------------------------
+CHECK_HIT5 PROC NEAR
+  
+  MOV AL, COLUMN 
+
+  CMP AL, COLUMN_ENEMY5
+  JE FLAG1E
+  MOV AH, 1
+
+  CHECK2E:
+    MOV BL, ROW
+    CMP BL, ROW_ENEMY5
+    JE FLAG2E
+    MOV BH, 1
+
+  CHECK3E:
+    ADD AH, BH
+    CMP AH, 0
+    JE HIT5
+    JMP RET1E
+
+FLAG1E:
+  MOV AH, 0
+  JMP CHECK2E
+FLAG2E:
+  MOV BH, 0
+  JMP CHECK3E
+
+HIT5:
+  cmp heart, 1
+  je print_gameover
+  dec heart
+  call print_lives
+
+RET1E:
+RET
+
+CHECK_HIT5 ENDP
+;---------------------------------------------------------------------------
+print_gameover proc near ;display the game over screen
+  
+  call _clear_screen
+  
+  MOV DH, 5
+  MOV DL, 00
+  call _set_cursor
+  
+  MOV AH, 09H
+  LEA DX, game_over
+  INT 21H
+  
+  call print_esc
+  
+  get_inputt:
+      MOV AH, 10H
+      MOV INPUT, AL
+      INT 16H
+      
+      cmp al, 27
+      je iterates
+      
+      jmp get_inputt
+ 
+print_gameover endp
+;---------------------------------------------------------------------------
+_LOADING PROC NEAR
+  ;clear screen
+  CALL _CLEAR_SCREEN
+  ;set cursor ;para sa 'loading'
+  MOV DL, 22H ;row
+  MOV DH, 11  ;column
+  CALL _SET_CURSOR
+
+  ;display loading
+  MOV AH, 09H
+  LEA DX, LOAD_STR
+  INT 21H
+
+  MOV TEMP, 00 ;asa magstart ang cursor sa pagdagan
+
+  __ITERATE:
+    ;set cursor ;para sa katong mudagan na character
+    MOV DL, TEMP
+    MOV DH, 12
+    CALL _SET_CURSOR
+
+    ;display char from register
+    MOV AL, 0DBH ;hex of char to be displayed
+    MOV AH, 02H
+    MOV DL, AL
+    INT 21H
+
+    CALL _DELAY
+
+    INC TEMP
+    CMP TEMP, 50H
+    JE LOADING_DONE
+			
+  JMP __ITERATE
+
+LOADING_DONE:
+RET
+_LOADING ENDP
+;----------------------------------------------------------------------------
+PRINT PROC NEAR; initializes the position and displays the player on the screen
+  MOV DH, ROW
+  MOV DL, COLUMN
+  CALL SET_CURSOR
+
+  MOV AH, 09H
+  LEA DX, STRING
+  INT 21H
+  RET
+
+PRINT ENDP
+;---------------------------------------------------------------------------
+PRINT2 PROC NEAR              ;DASH
+
+  CMP DASH_ROW, 84            ;if dash has reached end, stop printing
+  JE RESET
+
+  CMP DASH_ROW, 0             ;if DASH_ROW is == 0, do not print dash yet. invoke only when dash_row == 1
+  JE PRINT2_RET
+
+  MOV DH, DASH_COLUMN
+  MOV DL, DASH_ROW
+  CALL SET_CURSOR
+
+  MOV AH, 09H
+  LEA DX, STRING_DASH
+  INT 21H
+
+  INC DASH_ROW
+  INC TMP5
+
+  JMP PRINT2_RET
+
+RESET:
+  MOV DASH_ROW, 0             ;reset to 0    
+
+PRINT2_RET:
+  RET
+PRINT2 ENDP
+;---------------------------------------------------------------------------
+UPDATE_PRINT2 PROC ;updates the column of the DASH, this will give the effect of the DASH going towards the ENEMY
+
+  CMP DASH_ROW, 0             ;if DASH_ROW is == 0, do not print dash yet. invoke only when dash_row == 1
+  JE UPDATE_PRINT2_RET
+
+  CMP DASH_ROW, 1             ;if dash isn't called first
+  JG UPDATE_PRINT2_RET
+
+  XOR CX, CX                          ;clear CX
+  MOV CL, ROW                         ;move hero column to CL                         
+  MOV DASH_COLUMN,   CL               ;move CL to dash row
+
+UPDATE_PRINT2_RET:
+  RET
+UPDATE_PRINT2 ENDP
+;-------------------------------------------------------------------------------------------
+PRINT3 PROC NEAR; 1ST ENEMY
+
+  MOV DH, ROW_ENEMY
+  MOV DL, COLUMN_ENEMY
+  CALL SET_CURSOR
+
+  MOV AH, 09H
+  LEA DX, STRING_ENEMY
+  INT 21H
+
+RET
+PRINT3 ENDP
+;------------------------------------------------------------------------------------------
+UPDATE_PRINT3 PROC ;updates the column of the enemy, this will give the effect of the enemy going towards the player
+  CMP COLUMN_ENEMY, 0
+  JLE BYE_ENEMY3
+
+  DEC COLUMN_ENEMY
+  INC TMP
+  RET
+
+BYE_ENEMY3:
+  MOV COLUMN_ENEMY, 30H
+
+RET
+UPDATE_PRINT3 ENDP
+;-------------------------------------------------------------------------------------------
+PRINT4 PROC NEAR ;2ND ENEMY
+
+  MOV DH, ROW_ENEMY1
+  MOV DL, COLUMN_ENEMY1
+  CALL SET_CURSOR
+
+  MOV AH, 09H
+  LEA DX, STRING_ENEMY
+  INT 21H
+
+RET
+PRINT4 ENDP
+;-------------------------------------------------------------------------------------------
+UPDATE_PRINT4 PROC NEAR ;updates the column of the enemy, this will give the effect of the enemy going towards the player
+
+  CMP COLUMN_ENEMY1, 0
+  JLE BYE_ENEMY4
+
+  DEC COLUMN_ENEMY1
+  INC TMP2
+  RET
+
+BYE_ENEMY4:
+  MOV COLUMN_ENEMY1, 49H
+
+RET
+UPDATE_PRINT4 ENDP
+;--------------------------------------------------------------------------------------------
+PRINT5 PROC NEAR; 3RD ENEMY
+
+  MOV DH, ROW_ENEMY2
+  MOV DL, COLUMN_ENEMY2
+  CALL SET_CURSOR
+
+  MOV AH, 09H
+  LEA DX, STRING_ENEMY
+  INT 21H
+
+RET
+PRINT5 ENDP
+;---------------------------------------------------------------------------------------------
+UPDATE_PRINT5 PROC NEAR ;updates the column of the enemy, this will give the effect of the enemy going towards the player
+
+  CMP COLUMN_ENEMY2, 0
+  JLE BYE_ENEMY5
+  DEC COLUMN_ENEMY2
+  INC TMP3
+  RET
+
+BYE_ENEMY5:
+  MOV COLUMN_ENEMY2, 50H
+
+RET
+UPDATE_PRINT5 ENDP
+;--------------------------------------------------------------------------------------------
+PRINT6 PROC NEAR; ENEMY
+
+  MOV DH, ROW_ENEMY3
+  MOV DL, COLUMN_ENEMY3
+  CALL SET_CURSOR
+
+  MOV AH, 09H
+  LEA DX, STRING_ENEMY
+  INT 21H
+
+RET
+PRINT6 ENDP
+;-------------------------------------------------------------------------------------------
+UPDATE_PRINT6 PROC NEAR ;;updates the column of the enemy, this will give the effect of the enemy going towards the player
+
+  CMP COLUMN_ENEMY3,0
+  JLE BYE_ENEMY6
+  DEC COLUMN_ENEMY3
+  INC TMP4
+  RET
+
+BYE_ENEMY6:
+  MOV COLUMN_ENEMY3, 60H
+
+RET
+UPDATE_PRINT6 ENDP
+;------------------------------------------------------------------------
+PRINT7 PROC NEAR; ENEMY
+
+  MOV DH, ROW_ENEMY4
+  MOV DL, COLUMN_ENEMY4
+  CALL SET_CURSOR
+
+  MOV AH, 09H
+  LEA DX, STRING_ENEMY
+  INT 21H
+
+RET
+PRINT7 ENDP
+;-------------------------------------------------------------------------------------------
+UPDATE_PRINT7 PROC NEAR ;;updates the column of the enemy, this will give the effect of the enemy going towards the player
+
+  CMP COLUMN_ENEMY4,0
+  JLE BYE_ENEMY7
+  DEC COLUMN_ENEMY4
+  INC TMP5
+  RET
+
+BYE_ENEMY7:
+  MOV COLUMN_ENEMY4, 0DH
+
+RET
+UPDATE_PRINT7 ENDP
+;------------------------------------------------------------------------
+PRINT8 PROC NEAR; ENEMY
+
+  MOV DH, ROW_ENEMY5
+  MOV DL, COLUMN_ENEMY5
+  CALL SET_CURSOR
+
+  MOV AH, 09H
+  LEA DX, STRING_ENEMY
+  INT 21H
+
+RET
+PRINT8 ENDP
+;-------------------------------------------------------------------------------------------
+UPDATE_PRINT8 PROC NEAR ;updates the column of the enemy, this will give the effect of the enemy going towards the player
+
+  CMP COLUMN_ENEMY5,0
+  JLE BYE_ENEMY8
+  DEC COLUMN_ENEMY5
+  INC TMP6
+  RET
+
+BYE_ENEMY8:
+  MOV COLUMN_ENEMY5, 12H
+
+RET
+UPDATE_PRINT8 ENDP
+;------------------------------------------------------------------------
+_SET_CURSOR PROC NEAR ;enables the request to set cursor (position where the elements are placed)
+  MOV AH, 02H ;request set cursor
+  MOV BH, 00 ;page number 0
+  INT 10H
+  
+  RET
+_SET_CURSOR ENDP
+;----------------------------------------------------------------------------
+;sets cursor location
+SET_CURSOR PROC NEAR
+  MOV AH, 01H
+  MOV CX, 2607H
+  INT 10H
+  
+      MOV AH, 02H
+      MOV BH, 00
+      INT 10H
+      RET
+
+  RET
+SET_CURSOR ENDP
+;-----------------------------------------------------------------------------
+KEYBOARDFUNC PROC NEAR ;checks for the pressed keyboard key and its corresponding function in the program
+
+  GET_KEY:
+  MOV AH, 01H   ;check for input
+  INT 16H
+
+  JZ BACKLOOP    ;if no input, return
+
+  MOV AH, 00H
+  INT 16H
+  
+  CMP AH, 48H
+  JE GOUP
+      
+  CMP AH, 50H
+  JE GODOWN
+  
+  CMP AH, 4DH
+  JE GORIGHT
+
+  cmp ah, 4bh
+  je _TERMINATE
+
+  cmp al, 27 ;ascii for esc
+  JE ITERATES ;if pressed, return to menu
+  
+  JMP GET_KEY ;this will isolate the keyboard function to the keys that are defined in the program
+  
+BACKLOOP:
+  RET
+;------------------------------------------------------------------
+GOUP: ;if arrow key UP is pressed, player's row is decreased
+  CALL DELETE_PREV
+  MOV AH, 02H
+  MOV BH, 00
+  DEC ROW
+  ;CALL CHECK
+  MOV DH, ROW
+  MOV DL, COLUMN
+  INT 10H
+  CALL PRINT
+  RET
+
+GODOWN: ;if arrow key DOWN is pressed, player's row is increased  
+  CALL DELETE_PREV
+  MOV AH, 02H
+  MOV BH, 00
+  INC ROW
+  ;CALL CHECK
+  MOV DH, ROW
+  MOV DL, COLUMN
+  INT 10H
+  CALL PRINT
+  RET
+
+GORIGHT: ;if right key is pressed, it will activate the bullets  
+  
+  ;TODO:NEW START
+
+  MOV DASH_ROW, 1         ;set to '1' if player clicks right
+  CALL UPDATE_PRINT2
+  ;TODO:NEW END
+
+  RET
+
+KEYBOARDFUNC ENDP
+;-----------------------------------------------------------------------------
+CHECK: ;will set the boundaries for the screen, so the player will not go beyond the dimentions of the screen
+  CMP ROW, 00H
+  JE ARROWUP
+
+  CMP ROW, 18H
+  JE ARROWDOWN
+
+  CMP COLUMN, 00H
+  JE ARROWLEFT
+
+  CMP COLUMN, 4FH
+  JE ARROWRIGHT
+  RET
+	
+ARROWUP:	
+  INC ROW
+  RET	
+ARROWDOWN:	
+  DEC ROW
+  RET
+ARROWRIGHT:
+  DEC COLUMN
+  RET
+ARROWLEFT:	
+  INC COLUMN
+  RET
+;-------------------------------------------------------------------------------
+DELETE_PREV PROC NEAR ;overwrites the cursor's previous display to space ' '
+
+  MOV AH, 02H
+  MOV BH, 00
+  MOV DH, ROW
+  MOV DL, COLUMN
+  INT 10H
+  MOV AH, 09H
+  LEA DX, SPACE
+  INT 21H
+  RET
+
+DELETE_PREV ENDP
+;-------------------------------------------------------------------------------
+_DELAY PROC NEAR ;sets how fast or slow the loop is
+  MOV BP, 2 ;lower value faster
+  MOV SI, 2 ;lower value faster
+
+  DELAY2:
+    DEC BP
+    NOP
+    JNZ DELAY2
+    DEC SI
+    CMP SI, 0
+    JNZ DELAY2
+    RET
+
+_DELAY ENDP
+;---------------------------------------------------------------------------
+_CLEAR_SCREEN PROC NEAR ;sets the screen's backgound to black and the foreground to white
+  
+  MOV AX, 0600H ;AH = 06 (scroll), AL = 00 (full screen)
+  MOV BH, 07H ;black background(7), white foreground(0)
+  MOV CX, 0000H ;upper left row:column
+  MOV DX, 184FH ;lower right row:column
+  INT 10H
+  RET
+
+_CLEAR_SCREEN ENDP     
+;---------------------------------------------------------------------------
+print_esc PROC NEAR ;prints "press ESC to quit"
+
+  MOV DH, 24
+  MOV DL, 61
+  CALL SET_CURSOR
+
+  MOV AH, 09H
+  LEA DX, escape
+  INT 21H
+
+  RET
+print_esc ENDP
+;-------------------------------------------------------------------------
+print_lives proc near ;prints the hearts that represents the lives of the player
+  MOV DH, 0
+  MOV DL, 4 
+  CALL SET_CURSOR 
+  
+  MOV AH, 09H
+  LEA DX, life
+  INT 21H
+  
+   
+  MOV AH, 09H ;request display (graphics)
+  MOV AL, 03H ;heart
+  MOV BH, 00 ;page number 0
+  MOV BL, 04 ;pixel value
+  MOV CX, HEART ;ten times  
+  INT 10H ;call interrup service
+  RET
+
+print_lives endp
+;-------------------------------------------------------------------------
+print_score proc near
+  MOV DH, 24
+  MOV DL, 4
+  CALL SET_CURSOR
+  
+  MOV AH, 09H
+  LEA DX, score
+  INT 21H
+  RET
+print_score endp
+;------------------------------------------------------------------------
+CLEAR_SCREEN PROC NEAR ;border for play screen
+  
+  MOV AX, 0600H ;AH = 06 (scroll), AL = 00 (full screen)
+  MOV BH, 07H ;black background(0), white foreground(7)
+  MOV CX, 0000H ;upper left row:column
+  MOV DX, 184FH ;lower right row:column
+  INT 10H
+  
+  MOV BH, 0eH     ;black background (0), yellow foreground (e)
+  MOV CX, 0101H   ;upper left row:column (01:01)
+  MOV DX, 174EH   ;lower right row:column (23:78)
+  INT 10H
+  RET
+
+CLEAR_SCREEN ENDP
+;-----------------------------------------------------------------------
+END MAIN
